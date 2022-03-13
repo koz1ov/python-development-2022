@@ -116,6 +116,41 @@ class GeneratorCmd(cmd.Cmd):
 
     def do_generate(self, args):
 
-        pass
+        args = args.split()
+        race = args[0] if args else None
+        arg_idx = 1
+
+        if race not in self.GENERATORS:
+            print("No such race")
+            return
+
+        if isinstance(self.GENERATORS[race], dict):
+            race_dict = self.GENERATORS[race]
+            
+            if len(args) < 2 or args[1] in self.GENDERS:
+                gen = race_dict[next(iter(race_dict))] 
+            elif args[1] not in race_dict:
+                print("No such subclass")
+                return
+            else:
+                gen = race_dict[args[arg_idx]]
+                arg_idx = 2
+        else:
+            gen = self.GENERATORS[race]
+
+        next_arg = args[arg_idx] if arg_idx < len(args) else None
+
+        if next_arg is not None and next_arg not in self.GENDERS:
+            print("There are only two genders")
+            return
+
+        print(gen.get_name_simple(self.GENDERS[next_arg] if next_arg is not None else self.GENDERS['male'], self.lang))
+
+    def emptyline(self):
+        return False
+
+    def do_EOF(*args):
+        print()
+        return True
 
 GeneratorCmd().cmdloop()
